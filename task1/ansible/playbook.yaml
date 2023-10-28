@@ -1,0 +1,10 @@
+---
+- name: Create an empyty file on App Server 3
+  hosts: stratos_dc
+  become: yes
+
+  tasks:
+   - name: Create an empty file
+     file:
+       path: /tmp/file.txt
+       state: touch
