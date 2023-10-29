@@ -1,0 +1,13 @@
+---
+- name: Create blank file on app_servers and set permissions
+  hosts: app_servers
+  become: yes 
+  
+  tasks:
+    - name: Create /home/nfsdata.txt
+      file:
+        path: /home/nfsdata.txt
+        state: touch
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: '0777'
