@@ -1,0 +1,10 @@
+---
+- name: Copy index.html to all Application Servers
+  hosts: app_servers
+  become: yes
+  
+  tasks: 
+    - name: Copy index.html to all app servers
+      copy:
+        src: /usr/src/dba/index.html
+        dest: /opt/dba
