@@ -1,0 +1,106 @@
+Setting Up environment
+
+VMs using Virtual Box or VMWare Workstation
+Docker
+Vagrant
+
+We need a control system where we can install ansible and target other systems.
+
+Setting up 
+
+virtualbox.org
+Install it
+
+osboxes.org/debian/
+you will find images here
+We will use Debian 8.6 Jessie image  Download it
+
+Go to VMWare
+
+Name: Ansible Controller
+Type: Linux
+Version: Debian 64 bit [the image you downloaded]
+Memory size: 1Gb would be fine for now
+Hard Disk: Here you select the image .vdi file
+
+Now we have to make sure this VM have access to the internet.
+
+Settings > Adapter > Bridged Adapter
+
+Power it on!
+
+pass is give from where you download the file
+
+  
+su     [switch to root]
+
+ifconfig to get the ip
+
+Do ssh into it using your terminal
+
+Go to https://docs.ansible.com/ansible/latest/installation_guide/installation_distros.html#installing-ansible-on-debian
+
+after installation check using the command: ansible
+
+
+Create two more such servers
+
+We can do different things like applying playbooks on different environments
+or you can have 1 for app and other for db 
+
+Now you can create snapshots of these vms we created so that when testing of playbooks is down we can revert back.
+So before running the playbook please revert back.
+
+
+
+Add the following line to /etc/apt/sources.list or /etc/apt/sources.list.d/ansible.list:
+
+deb http://ppa.launchpad.net/ansible/ansible/ubuntu MATCHING_UBUNTU_CODENAME_HERE main
+Example for Debian 11 (Bullseye)
+
+deb http://ppa.launchpad.net/ansible/ansible/ubuntu focal main
+
+for debian12
+deb http://deb.debian.org/debian/ bookworm main
+
+
+Then run these commands:
+
+$ sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 93C4A3FD7BB9C367
+$ sudo apt update
+$ sudo apt install ansible
+
+
+
+
+
+
+
+
+
+Ansible Controller
+
+Ansible Target 1
+Ansible Target 2
+
+
+
+Ansible Controller
+
+cat > inventory.txt
+
+target1 ansible_host=192.168.1.10 ansible_ssh_pass=Passw0rd
+target2 ansible_host=192.168.1.13 ansible_ssh_pass=Passw0rd
+
+
+
+ansible target1 -m ping  -i inventory.txt     
+
+Failed!
+
+Using a SSH password instead of a key is not possible because Host Key checking is enabled and 
+ssh password does not support this. Please add this host's fingerprint to your known_hosts file to manage this host.
+
+Security out of the Box
+
+
