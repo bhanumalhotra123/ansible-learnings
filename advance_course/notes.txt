@@ -73,11 +73,6 @@ $ sudo apt install ansible
 
 
 
-
-
-
-
-
 Ansible Controller
 
 Ansible Target 1
@@ -102,5 +97,94 @@ Using a SSH password instead of a key is not possible because Host Key checking 
 ssh password does not support this. Please add this host's fingerprint to your known_hosts file to manage this host.
 
 Security out of the Box
+
+
+
+
+root@44d2ac6a5c1c:/home/cloud_user# vi inventory.txt 
+root@44d2ac6a5c1c:/home/cloud_user# ansible target1 -m ping -i inventory.txt
+target1 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+root@44d2ac6a5c1c:/home/cloud_user# cat inventory.txt 
+target1 ansible_host=3.83.220.80 ansible_user=cloud_user ansible_ssh_pass=hellohello
+
+
+
+
+Wildcard pattern
+ansible target* -m ping -i inventory.txt
+
+
+
+
+Ansible on Docker
+run a docker container which is ssh enabled
+
+docker run -it -d mumshad/ubuntu-ssh-enabled
+
+docker pass
+
+docker inspect container_id
+
+get the ip 
+
+
+
+run few more containers with the same command
+get ip of all 
+
+inside first create inventory.txt
+
+target1 ansbile_host=172.17.0.2 ansible_ssh_pass=Passw0rd
+target2
+target3
+
+
+target* -m ping -i inventory.txt
+
+
+
+
+
+
+
+USE CASE  
+
+
+Web application
+
+Identitfy server
+Python Install and install dependencies
+Install and Configure Mysql strart 
+Install flask
+Source code
+Run apps 
+
+
+
+#inventory file
+db_and_web_server ansible_ssh_pass=Passw0rd ansible_host=192.168.1.14
+
+
+#ansible playbook
+
+---
+- name: Deploy Web application
+  hosts: db_and_web_server
+  tasks:
+    - name: Install dependencies
+    - name: Install MySQL database
+    - name: Start Mysql service
+    - name: Create Application database
+    - name: Create Application DB user
+    - name: Install Python Flask dependencies
+    - name: Copy web-server code
+    - name: Run web-server
+
 
 
