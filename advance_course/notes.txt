@@ -233,3 +233,46 @@ poll - How frequently to check?
        default 10 seconds
 
 Check task9 Properly explained there using comments.
+
+
+
+
+Strategy:
+
+Linear Strategy: Default
+When you have a list of tasks on ansible playbook and you have more than 1 host.
+
+Ansible first run the 1st task on all the servers 1 by 1 and then move to running 2nd task on all server 1 by 1.
+
+It doesn't work like running all the tasks on a server and then running all the tasks on 2nd server and so on.
+
+This is default strategy and is called as linear strategy.
+
+
+
+Free Strategy:
+
+Each server goes to the end as fast is it can without bothering about other one.
+Basically it doesn't wait for 1 task to be completed on all the servers.
+
+
+Strategy: Batch
+You can control number of servers executed at once.
+
+serial:3       is used to define it.
+
+If it is set to 3. Ansible first runs all the tasks on 3 server like a linear strategy. Once it completes it moves to next set of 3 servers.
+
+There is also possibility of using percentages.
+
+
+
+What if there are 100 servers?
+
+Ansible uses by default 5 forks (mentioned in ansible.cfg). It will run tasks on 5 servers at a time doesn't matter how many servers you have.
+
+You can change the value, but make sure you have sufficient resources and network bandwidth for it.
+
+
+
+Check task 10 for strategies.
