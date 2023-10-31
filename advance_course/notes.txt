@@ -188,3 +188,14 @@ db_and_web_server ansible_ssh_pass=Passw0rd ansible_host=192.168.1.14
 
 
 
+
+ansible-galaxy init mysql_db 
+
+This command is used to create a role and structure under it.
+
+
+You can browse roles on ansible galaxy
+
+You can share as well.
+
+
