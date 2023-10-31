@@ -199,3 +199,37 @@ You can browse roles on ansible galaxy
 You can share as well.
 
 
+
+
+
+Asynchronous Actions
+
+Ansible Master --------SSH-----------> Ansible target
+
+SSH connection stays alive through out the task in a playbook 
+
+
+
+
+Run a process and check on it later
+Run multiple process at once and check on them later
+Run processes and forget
+
+
+Lets say as part of our deployment we have a script which performs the health check.
+It is located at /opt/monitor_webapp.py 
+The script performs checks for 5 mins.
+We want ansible to kick off and say check it after 1 min.
+
+Kick it off and check on it later.
+
+By default ansible checks it each 10 sec. But we can change that using poll.
+We don't want to wait for 5 mins, why?
+What if script fails? We don't want to waste the time.
+
+async - How long to run/
+
+poll - How frequently to check?
+       default 10 seconds
+
+Check task9 Properly explained there using comments.

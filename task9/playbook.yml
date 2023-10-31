@@ -1,0 +1,50 @@
+# Ansible Playbook
+
+- 
+  name: Deploy Web Application
+  hosts: db_and_web_server
+  tasks:
+    - command: /opt/monitor_webapp.py
+      async: 360        #to wait for 6 mins #It doesn't mean ansible is going to move forward.
+      poll: 60          #to check after every 1min
+
+    - command: /opt/monitor_database.py
+      async: 360        #after the first command is completed it then runs this one
+      poll: 60 
+
+
+#How to run them parllel?
+
+# Setting the poll to 0 . We say ansible not to wait for polling the task instead move forward.
+
+  name: Deploy Web Application
+  hosts: db_and_web_server
+  tasks:
+    - command: /opt/monitor_webapp.py
+      async: 360       
+      poll: 0          
+
+    - command: /opt/monitor_database.py
+      async: 360       
+      poll: 0
+
+# But ansible will exit just after hitting the second command, it wont wait for both commands to complete.
+
+  name: Deploy Web Application
+  hosts: db_and_web_server
+  tasks:
+    - command: /opt/monitor_webapp.py
+      async: 360       
+      poll: 0          
+      register: webapp_result     # We register result of the task to a variable
+
+    - command: /opt/monitor_database.py
+      async: 360       
+      poll: 0
+      register: database_result #registering the result as a variable
+
+    -name: Check status of tasks
+     async_status: jid={{ webapp_result.ansible_job_id }}
+     register: job_result
+     until: jobresult.finished
+     retries: 30                         #all modules do not support async[make sure whatever you are using supports it]
