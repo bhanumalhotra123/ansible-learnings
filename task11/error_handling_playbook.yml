@@ -1,0 +1,9 @@
+- mail:
+    to: devops@corp.com
+    subject: Server Deployed!
+    body: Web Server Deployed
+  ignore _errors: yes             #if the task is not important we can use this
+
+- command: cat /var/log/server.log
+  register: command_output
+  failed_when: "'ERROR' in command_output.stdout"  #if in case there are any errors inside the file it fails.

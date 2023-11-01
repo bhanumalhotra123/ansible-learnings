@@ -276,3 +276,222 @@ You can change the value, but make sure you have sufficient resources and networ
 
 
 Check task 10 for strategies.
+
+
+
+Error Handling
+
+What happens when the task fail?
+
+Assume a playbook running on a single server with 5 tasks.
+
+say 3rd task throws the error.
+Ansible directy stops the further task processing.
+
+
+Now think of 3 servers, 5 tasks.
+
+
+Say one of task failed just at server2.
+
+Ansible drops that server and continues with others.
+
+
+What if we want it to stop the execution of play on all the servers even if one of it fails?
+
+any_error_fatal: true
+
+Check task 11
+ 
+
+
+mail module is used to send email
+
+- main:
+    to: devops@corp.com
+    subject: Server Deployed!
+    body: Web Server Deployed
+  ignore _errors: yes             #if the task is not important we can use this
+
+
+
+Jinja2 templating
+
+
+{{}}
+
+{%%}
+
+If not defined either it fails or it takes the default value if you had given that.
+
+String Manipulation - Filters
+
+The name is {{ my_name }} => The name is Bond
+The name is {{ my_name | upper }} => The name is BOND 
+The name is {{ my_name | lower }} => The name is bond
+The name is {{ my_name | tittle }} => The name is Bond
+The name is {{ my_name | replace ("Bond","Bourne")}} => The name is bourne
+The name is {{ first_name | default("James)}} {{my_name}} => The name is James Bond 
+
+
+{{ [1,2,3] | min}}               1
+{{ [1,2,3,2] | unique }}     1,2,3
+
+
+{{[1,2,3,4] | union( [4,5] )}}      1,2,3,4,5
+{{[1,2,3,4] | intersect( [4,5] )}}   4
+
+{{100 | random}}        Random number
+
+
+{{ ["The", "name", "is", "Bond"] | join("")}} The name is Bond
+
+
+
+{{"/etc/hosts" | basename}}      hosts
+
+{{"c:\windows\hosts | win_basename}}   hosts
+
+{{"c:\windows\hosts" | win_splitdrive}}       ["c:", "\windows\hosts"]
+
+{{"c:\windows\hosts" | win_splitdrive | first}}       "c:"
+
+{{ "c:\windows\hosts" | win_splitdrive | last}}        "\windows\hosts"
+
+
+
+https://jinja.palletsprojects.com/en/3.1.x/templates/#list-of-builtin-filters
+https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_templating.html
+
+
+
+
+
+
+LOOKUPS
+
+So far we are storing creds in inventory file.
+
+Let us say creds are instead stored in a csv file.
+
+# CSV File - credejtials.csv
+Hostname, password
+Target1, Passw0rd
+Target2, Passw0rd
+
+
+
+         Type of File
+{{lookup('csvfile', 'target1' file=/tmp/credentials.csv delimiter=,')}}
+                 Value to Lookup       File to Lookup 
+
+
+
+This will return the password from the csv file
+
+
+
+
+
+
+Vault
+Storing passwords as text is risky
+
+ansible-vault encrypt inventory.txt
+
+
+now if you try to run the playbook Now
+ansible-playbook playbook.yml -i inventory.txt
+IT will throw an error
+
+
+ansible-playbook.yml -i inventory.txt -ask-vault-pass
+
+or
+
+ansible-playbook playbook.yml -i inventory.txt -vault-password-file ~./vault_pass.txt
+
+Is it okay to pass a txt file as a pass? NO!
+
+
+So: 
+
+ansible-playbook playbook.yml -i inventory.txt -vault-password-file ~./vault_pass.py
+
+
+this script will be the one which you will create to fetch the password from a secured location.
+
+
+
+
+ansible-vault view inventory.txt
+
+ansible-vault create inventory.txt
+
+
+
+
+
+Dynamic Inventory       task 14
+
+More often than not we would like to fetch the data of inventories to run our playbooks from 
+a CMDB or Cloud API 
+
+
+Dynamic Inventory is inventory information that ansible retrives programmaticaly when a playbook is run
+as opposite to a static inventory file which we define in a txt file.
+
+
+
+
+
+Various modules availale:
+
+
+System: 
+User, Group, Hostname, Iptables, Lvg, Lvol, Make, Mount, Ping, Timezone, Systemd, service
+
+Commands:
+Command, Expect, Raw, Script, Shell
+
+Files:
+Acl, Archive, Copy, File, Find, Lineinfile, Replace, Stat, Template, Unarchive
+
+Database:
+Mongodb, Mssql, Mysql, Postgresql, Proxysql, vertica
+
+Cloud:
+
+Windows:
+
+
+
+
+What about custom modules?
+
+
+
+say we want to write a custom_debug module which writes the date with the msg
+
+
+#Sample Ansible Playbook1.yml
+- 
+  name: Debug Something
+  hosts: target1
+  tasks: 
+    - debug: msg='This is test message'
+
+
+
+
+Custom plugins
+check filter_plugins dir
+
+
+Callback plugins
+
+Default is set to skippy
+
+export ANSIBLE_STDOUT_CALLBACK=kson; ansible-playbook playbook1.yml 
+
+https://github.com/ansible/ansible/tree/devel/lib/ansible/plugins/callback
