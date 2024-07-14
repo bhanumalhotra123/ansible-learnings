@@ -44,6 +44,42 @@ ansible example(all servers in ansible group)  (cmd is the bydefault module) -a(
     - name: Ensure NTP is installed
       yum: name=ntp state=present
     - name: Ensure NTP is running
-      service: name=ntpd state=started enable=yes
-    
-      
+      service: name=ntpd state=started enabled=yes
+```
+
+> Idempotency
+
+Nothing changes if done once.
+
+> How ansible modules makes things easier
+```
+---
+- hosts: all
+  become: yes
+  tasks:
+    - name: Ensure NTP is installed
+    - shell: |
+        if ! rpm -qa | grew -qw ntp; then
+         yum install -y ntp
+        fi
+    - name: Ensure NTP is running
+      service: name=ntpd state=started enabled=yes
+```
+
+> Good to name the plays as well if there are multiple in the playbook
+
+```
+---
+
+- name: Setup NTP on all servers
+  hosts: all
+  become: yes
+  tasks:
+    - name: Ensure NTP is installed
+    - shell: |
+        if ! rpm -qa | grew -qw ntp; then
+         yum install -y ntp
+        fi
+    - name: Ensure NTP is running
+      service: name=ntpd state=started enabled=yes
+```
