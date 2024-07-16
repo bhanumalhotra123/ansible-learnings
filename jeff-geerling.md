@@ -233,3 +233,78 @@ ansible-inventory --list -i inventory
 
 
 Chapter 4
+
+> inventory
+```
+[solr]
+54.210.120.211 ansible_user=ubuntu
+
+```
+
+> main.yml
+```
+---
+- hosts: solr
+  become: true
+  vars_files:
+    - vars.yml
+  pre_tasks:
+    - name: Update apt cache if needed
+      apt:
+        update_cache: true
+        cache_valid_time: 3600
+  handlers:
+    - name: restart solr
+      service: name=solr state=restarted
+  tasks:
+     - name: Install java
+       package: name=openjdk-8-jdk state=present
+     - name: Install solr
+       get_url:
+         url: "https://mirrors.ocf.berkeley.edu/apache/lucene/solr/{{ solr_version }}/{{ solr_version }}.tgz"
+         dest: "{{ download_dir }}/solr-{{ solr_version }}.tgz "
+         checksum: "{{ solr_checksum }}"
+     - name: Expand Solr
+       unarchive:
+         src: "{{ download_dir }}"/solr-{{ solr-version }}.tgz
+         dest: "{{ download_dir }}"
+         remote_src: true            # by default unarchive copies from local to remote and then unarchive. If your file is already at remote, set this to true so that it doesn't copy.
+         creates: " {{ download_dir/solr-{{ solr_version }}/README.txt}}"   # Ansible will check if this file exists. If it does, Ansible will consider the task successful and will not run the unarchive task again unless the file (readme.txt) is removed or the task is forced to run.
+     - name: Run Solr installation script
+       command: >
+         {{ download_dir }}/solr-{{ solr_version }}/bin/install_solr
+         {{ download_dir }}/solr-{{ solr_version }}.tgz
+         -i /opt
+         -d /var/solr
+         -u solr
+         -s solr
+         -p 8983
+         creates={{ solr_dir }}/bin/solr
+     - name: Ensure solr is started and enabled at boot
+       service:
+         name: solr
+         state: started
+         enabled: yes     
+```
+
+> vars.yml
+```
+---
+download_dir: /dir
+solr_dir: /opt/solr
+solr_version: 8.5.0
+solr_checksum: sha512:7e16aa71fc01f9d9b05e5514e35798104a18253a211426aa669aa3b91225d110a4fa1c78c9ec86b7e1909e2aae63696deffd877536790303cd0638eb7f1a8c63
+https://www.apache.org/dyn/closer.lua/solr/solr/9.6.1/solr-9.6.1.tgz?action=download
+```
+
+
+> To check if yml is valid or not
+```
+ansible-playbook main.yml --syntax-check
+```
+
+> Run the playbook
+```
+ansible-playbook -i inventory main.yml
+
+```
