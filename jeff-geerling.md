@@ -1,3 +1,5 @@
+Chapter 1
+
 https://docs.ansible.com/
 
 https://groups.google.com/g/ansible-project
@@ -456,4 +458,29 @@ apache.yml
         name: httpd
         state: started
         enabled: true
+```
+
+
+> Environment variables
+
+```
+---
+- name: Install Apache
+  hosts: centos
+  become: true
+
+  handlers:
+    - name: restart apache
+      service:
+        name: httpd
+        state: restarted
+  tasks:
+    - name: Add an environment variable to the remote user's shell.
+      lineinfile:
+        dest:"~/.bash_profile"
+        regexp: '^ENV_VAR='
+        line: 'ENV_VAR=value'
+        become: false        # switches off sudo
+   - name: Get the value of an environment variable.
+     shell: 'source ~/.bash_profile && echo $ENV_VAR'
 ```
