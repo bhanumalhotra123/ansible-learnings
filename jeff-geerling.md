@@ -308,3 +308,152 @@ ansible-playbook main.yml --syntax-check
 ansible-playbook -i inventory main.yml
 
 ```
+
+
+Chapter 5
+
+apache.yml
+```
+---
+- name: Install Apache
+  hosts: centos
+  become: true
+
+  handlers:
+    - name: restart apache
+      service:
+        name: httpd
+        state: restarted
+
+  tasks:
+    - name: Ensure Apache is installed.
+      yum:
+        name: httpd
+        state: present
+    - name: Copy test config file
+      copy:
+        src: files/test.conf
+        dest: /etc/httpd/conf.d/test.conf        # whenever this result in change it calls the handler
+        notify: restart apache
+    - name: Make sure handlers are flushed immediately.
+      meta: flush_handlers                                    # if you don't use this handlers will be executed at the end of the playbook so flush_handlers are used for setting when to run the handlers
+
+    - name: Ensure Apache is running and starts at boot.
+      service:
+        name: httpd
+        state: started
+        enabled: true
+
+    - fail:  
+```
+
+
+
+```
+---
+- name: Install Apache
+  hosts: centos
+  become: true
+
+  handlers:
+    - name: restart apache
+      service:
+        name: httpd
+        state: restarted
+
+  tasks:
+    - name: Ensure Apache is installed.
+      yum:
+        name: httpd
+        state: present
+    - name: Copy test config file
+      copy:
+        src: files/test.conf
+        dest: /etc/httpd/conf.d/test.conf        # whenever this result in change it calls the handler
+        notify: restart apache
+
+    - name: Ensure Apache is running and starts at boot.
+      service:
+        name: httpd
+        state: started
+        enabled: true
+
+    - fail:                                    # this will fail the playbook after the tasks above it, so no handler will run.
+```
+
+
+- Handlers run end of playbook if flush_handlers isn't used.
+
+
+```
+---
+- name: Install Apache
+  hosts: centos
+  become: true
+
+  handlers:
+    - name: restart apache
+      service:
+        name: httpd
+        state: restarted
+    - name: restart memcached
+      service:
+        name: memcached
+        state: restarted
+
+  tasks:
+    - name: Ensure Apache is installed.
+      yum:
+        name: httpd
+        state: present
+    - name: Copy test config file
+      copy:
+        src: files/test.conf
+        dest: /etc/httpd/conf.d/test.conf        # whenever this result in change it calls the handler
+        notify:
+          - restart apache
+          - restart memcached                  # one more handler
+    - name: Ensure Apache is running and starts at boot.
+      service:
+        name: httpd
+        state: started
+        enabled: true
+```
+
+
+
+```
+---
+- name: Install Apache
+  hosts: centos
+  become: true
+
+  handlers:
+    - name: restart apache
+      service:
+        name: httpd
+        state: restarted
+      notify: restart memcached                  # one handler starts the other handler (so handlers are nothing but tasks in ansible which can be called.)
+    - name: restart memcached
+      service:
+        name: memcached
+        state: restarted
+
+  tasks:
+    - name: Ensure Apache is installed.
+      yum:
+        name: httpd
+        state: present
+    - name: Copy test config file
+      copy:
+        src: files/test.conf
+        dest: /etc/httpd/conf.d/test.conf        # whenever this result in change it calls the handler
+        notify:
+          - restart apache
+
+    - name: Ensure Apache is running and starts at boot.
+      service:
+        name: httpd
+        state: started
+        enabled: true
+```
