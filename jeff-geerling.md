@@ -481,6 +481,100 @@ apache.yml
         regexp: '^ENV_VAR='
         line: 'ENV_VAR=value'
         become: false        # switches off sudo
+
    - name: Get the value of an environment variable.
      shell: 'source ~/.bash_profile && echo $ENV_VAR'
+     register: foo                                               # registering the variable
+
+   - debug: msg="The variable is {{ foo.stdout }}"                       # this will print: value
+
+
+``` 
+
+
+```
+  vars:
+    proxy_vars:
+      http_proxy: http://example-proxy:80/
+      https_proxy: https://example-proxy:80/
+
+  tasks:
+    - name: Download a file
+      get_url:
+        url: http://ipv4.download.thinkbroadband.com/20MB.zip
+        dest: /tmp
+      environment: proxy_vars
+```
+
+```
+---
+- name: Install Apache
+  hosts: ubuntu                 # changed to ubuntu playbook won't run as ubuntu uses diff name for apache packages
+  become: true
+
+  vars:
+    apache_package: httpd
+    apache_service: httpd 
+
+  handlers:
+    - name: restart apache
+      service:
+        name: ="{{ apache_service }}"
+        state: restarted 
+
+  tasks:
+    - name: Ensure Apache is installed.
+      yum:
+        name: {{ apache_package }}
+        state: present
+
+    - name: Copy test config file
+      copy:
+        src: files/test.conf
+        dest: /etc/httpd/conf.d/test.conf        # whenever this result in change it calls the handler
+        notify: restart apache
+
+    - name: Ensure Apache is running and starts at boot.
+      service:
+        name: httpd
+        state: started
+        enabled: true
+
+```
+
+
+```
+---
+- name: Install Apache
+  hosts: ubuntu                
+  become: true
+
+  vars:
+    apache_package: apache2     # suitable names for ubuntu
+    apache_service: apache2
+    apache_config_dir: /etc/apache2/sites-enabled
+
+  handlers:
+    - name: restart apache
+      service:
+        name: ="{{ apache_service }}"
+        state: restarted 
+
+  tasks:
+    - name: Ensure Apache is installed.
+      yum:
+        name: {{ apache_package }}
+        state: present
+    - name: Copy test config file
+      copy:
+        src: files/test.conf
+        dest: "{{ apache_config_dir }}/test.conf"     # whenever this result in change it calls the handler
+        notify: restart apache
+
+    - name: Ensure Apache is running and starts at boot.
+      service:
+        name: httpd
+        state: started
+        enabled: true
+
 ```
